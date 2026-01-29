@@ -2,14 +2,31 @@ import React from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import "../../styles/navbar.css";
+import { UserApi } from "../../service/api";
 
 const Navbar = () => {
   const { user, logout, isAuthenticated } = useAuth();
   const navigate = useNavigate();
 
-  const handleLogout = () => {
-    logout();
-    navigate("/login");
+  const handleLogout = async() => {
+    // Get refresh token from both storages (same logic as api.js)
+    const refreshToken = localStorage.getItem("refreshToken") || sessionStorage.getItem("refreshToken");
+    
+    try {
+      // Try to invalidate token on server
+      if (refreshToken) {
+        await UserApi.logout(refreshToken);
+      }
+    } catch (error) {
+      // Even if API call fails, we still logout locally
+      // This ensures user is logged out even if server is unreachable
+      console.error("Error invalidating token on server:", error);
+    } finally {
+      // Always clear local auth state and redirect
+      // This ensures logout happens even if API call fails
+      logout();
+      navigate("/login");
+    }
   };
 
   if (!isAuthenticated() || !user) {

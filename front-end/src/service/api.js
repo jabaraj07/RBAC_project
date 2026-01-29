@@ -126,6 +126,7 @@ export const UserApi = {
     refreshToken: (refreshToken) => api.post("/auth/refresh", { refreshToken }),
     getCurrentUser: () => api.get("/auth/me"),
     getAllUsers: (page = 1, limit = 10) => api.get(`/users?page=${page}&limit=${limit}`),
+    logout:(refreshToken)=>api.post("/auth/logout",{refreshToken})
 }
 
 export default api;
